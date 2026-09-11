@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            color: #333;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 40px auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            color: #34495e;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            padding: 11px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #3498db;
+            color: white;
+            font-size: 15px;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        .danger {
+            background: #e74c3c;
+        }
+
+        .danger:hover {
+            background: #c0392b;
+        }
+
+        .success {
+            background: #27ae60;
+        }
+
+        .success:hover {
+            background: #219150;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #34495e;
+            color: white;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Student Management System</h1>
+
+    <!-- Add Student -->
+    <div class="card">
+        <h2>Add Student</h2>
+
+        <input type="text" id="name" placeholder="Student Name">
+        <input type="text" id="course" placeholder="Course">
+        <input type="number" id="marks" placeholder="Marks">
+
+        <button class="success" onclick="addStudent()">
+            Add Student
+        </button>
+    </div>
+
+
+    <!-- View Students -->
+    <div class="card">
+        <h2>Students List</h2>
+
+        <button onclick="getStudents()">
+            View Students
+        </button>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Course</th>
+                    <th>Marks</th>
+                </tr>
+            </thead>
+
+            <tbody id="studentTable">
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- Update Student -->
+    <div class="card">
+        <h2>Update Student</h2>
+
+        <input type="number" id="updateId" placeholder="Student ID">
+        <input type="number" id="updateMarks" placeholder="New Marks">
+
+        <button onclick="updateStudent()">
+            Update Student
+        </button>
+    </div>
+
+
+    <!-- Delete Student -->
+    <div class="card">
+        <h2>Delete Student</h2>
+
+        <input type="number" id="deleteId" placeholder="Student ID">
+
+        <button class="danger" onclick="deleteStudent()">
+            Delete Student
+        </button>
+    </div>
+
+    <p id="message"></p>
+
+</div>
+
+
+<script>
+
+    const API_URL = "http://127.0.0.1:8000";
+
+
+    // ADD STUDENT
+    async function addStudent() {
+
+        const name = document.getElementById("name").value;
+        const course = document.getElementById("course").value;
+        const marks = document.getElementById("marks").value;
+
+        const response = await fetch(
+            `${API_URL}/students?name=${encodeURIComponent(name)}&course=${encodeURIComponent(course)}&marks=${marks}`,
+            {
+                method: "POST"
+            }
+        );
+
+        const data = await response.json();
+
+        document.getElementById("message").innerText =
+            data.message;
+
+        getStudents();
+    }
+
+
+    // GET STUDENTS
+    async function getStudents() {
+
+        const response = await fetch(
+            `${API_URL}/students`
+        );
+
+        const data = await response.json();
+
+        const table = document.getElementById("studentTable");
+
+        table.innerHTML = "";
+
+        data.data.forEach(student => {
+
+            table.innerHTML += `
+                <tr>
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${student.course}</td>
+                    <td>${student.marks}</td>
+                </tr>
+            `;
+
+        });
+    }
+
+
+    // UPDATE STUDENT
+    async function updateStudent() {
+
+        const id = document.getElementById("updateId").value;
+        const marks = document.getElementById("updateMarks").value;
+
+        const response = await fetch(
+            `${API_URL}/students/${id}?marks=${marks}`,
+            {
+                method: "PUT"
+            }
+        );
+
+        const data = await response.json();
+
+        document.getElementById("message").innerText =
+            data.message;
+
+        getStudents();
+    }
+
+
+    // DELETE STUDENT
+    async function deleteStudent() {
+
+        const id = document.getElementById("deleteId").value;
+
+        const response = await fetch(
+            `${API_URL}/students/${id}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+        const data = await response.json();
+
+        document.getElementById("message").innerText =
+            data.message;
+
+        getStudents();
+    }
+
+</script>
+
+</body>
+</html>
